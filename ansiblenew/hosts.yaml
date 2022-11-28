@@ -1,0 +1,14 @@
+[docker]
+3.133.99.208
+18.189.31.189
+18.217.27.3
+[infra]
+3.133.99.208
+[staging]
+18.189.31.189
+[prod]
+18.217.27.3
+[all:vars]
+ansible_connetion=ssh
+ansible_user=ubuntu
+ansible_ssh_private_key_file=/home/nlawson/.ssh/N3Tinfrastructure.pem
