@@ -42,7 +42,7 @@
       update_cache: true
   
   - name: change docker socket file permissions
-    command: sudo chmod 771 /var/run/docker.sock
+    command: sudo chmod 666 /var/run/docker.sock
   
     #-name: Install Docker Compose
   # get_url:

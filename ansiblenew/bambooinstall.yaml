@@ -2,8 +2,15 @@
 - name: Starting docker service
   hosts: infra
   become: yes
-  become_user: dev
+    #  become_user: dev
+  vars_files:
+    - vars/bamboo.yaml
   tasks:
+  - name: login to dockerhub
+    docker_login:
+      username: "{{ username }}"
+      password: "{{ password }}"
+
   - name: Starting docker service
     service:
       name: docker
@@ -13,11 +20,22 @@
   - name: Create a volume
     docker_volume:
       name: bambooVolume
-      
+
+  - name: copy docker run command file
+    copy:
+      src: dockerrun.sh
+      dest: /tmp/dockerrun.sh
+      mode: '0771'
+  
+  - name: Execute the dickerrun.sh
+    command: sh /tmp/dockerrun.sh
+
   #- name: pull image
   #  command: docker pull jrrickerson/capstone-bamboo
 
   #- name: switch user to dev
   #  command: sudo su dev 
-  - name: run bamboo from image on docker volume
-    command: docker run --group-add $(getent group docker | cut -d ":" -f 3) -v /var/run/docker.sock:/var/run/docker.sock -v bambooVolume:/var/bamboo/bamboo-home --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 jrrickerson/capstone-bamboo
+  #
+  #
+  #  - name: run bamboo from image on docker volume
+  #    command: sudo docker run --group-add $(getent group docker | cut -d ":" -f 3) -v /var/run/docker.sock:/var/run/docker.sock -v bambooVolume:/var/bamboo/bamboo-home --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 jrrickerson/capstone-bamboo
