@@ -1,7 +1,7 @@
 # Ansible playbook AWS - install docker (2021)
 ---
 - name: "AWS - Install docker"
-  hosts: infra
+  hosts: all
   become: yes
   vars_files:
     - vars/default.yaml
