@@ -10,6 +10,8 @@ Resources:
       Tags:
         - Key: IEAteam
           Value: N3T
+        - Key: Name
+          Value: N3T-infra
   N3Tstaging:
     Type: AWS::EC2::Instance
     Properties:
@@ -21,6 +23,8 @@ Resources:
       Tags:
         - Key: IEAteam
           Value: N3T
+        - Key: Name
+          Value: N3T-staging
   N3Tprod:
     Type: AWS::EC2::Instance
     Properties:
@@ -32,6 +36,8 @@ Resources:
       Tags:
         - Key: IEAteam
           Value: N3T
+        - Key: Name
+          Value: N3T-prod
   N3TinfrastructureSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
