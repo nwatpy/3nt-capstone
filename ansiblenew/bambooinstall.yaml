@@ -27,7 +27,7 @@
       dest: /tmp/dockerrun.sh
       mode: '0771'
   
-  - name: Execute the dickerrun.sh
+  - name: Execute the dockerrun.sh
     command: sh /tmp/dockerrun.sh
 
   #- name: pull image
