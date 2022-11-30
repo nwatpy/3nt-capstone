@@ -63,13 +63,13 @@ def test_get_wp_response_success():
                                         'title': {'rendered': 'Hello world!'},
                                         'type': 'post'
         }
-    credentials = CREDS["user"] + ':' + CREDS["password"]
-    token = base64.b64encode(credentials.encode())
-    header = {'Authorization': 'Basic ' + token.decode('utf-8')}
+    #credentials = CREDS["user"] + ':' + CREDS["password"]
+    #token = base64.b64encode(credentials.encode())
+    #header = {'Authorization': 'Basic ' + token.decode('utf-8')}
     mock_response = mock_get.return_value
     mock_response.status_code = 200
     mock_response.json.return_value = expected
     response_data = pyblog.get_wp_response()
-    mock_get.assert_called_with(CREDS['wp_posts_url'], header)
+    mock_get.assert_called_with(CREDS['wp_posts_url'])
     assert response_data == expected
 
