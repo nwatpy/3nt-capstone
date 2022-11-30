@@ -1,9 +1,10 @@
 from requests import exceptions
 from unittest.mock import patch
 from requests.auth import HTTPBasicAuth
+import base64
 import pyblog
 
-creds = {
+CREDS = {
     "wp_posts_url": "http://18.189.31.189:8088/wp-json/wp/v2/posts",
     "user": "test_user",
     "password": "test_password"
@@ -11,7 +12,8 @@ creds = {
 
 def test_get_wp_response_success():
     with patch('requests.get') as mock_get:
-        expected = [   {   '_links': {   'about': [   {   'href': 'http://18.189.31.189:8088/wp-json/wp/v2/types/post'}],
+        expected = {
+                      '_links': {   'about': [   {   'href': 'http://18.189.31.189:8088/wp-json/wp/v2/types/post'}],
                       'author': [   {   'embeddable': True,
                                         'href': 'http://18.189.31.189:8088/wp-json/wp/v2/users/1'}],
                       'collection': [   {   'href': 'http://18.189.31.189:8088/wp-json/wp/v2/posts'}],
@@ -30,39 +32,44 @@ def test_get_wp_response_success():
                                      {   'embeddable': True,
                                          'href': 'http://18.189.31.189:8088/wp-json/wp/v2/tags?post=1',
                                          'taxonomy': 'post_tag'}]},
-        'author': 1,
-        'categories': [1],
-        'comment_status': 'open',
-        'content': {   'protected': False,
-                       'rendered': '\n'
-                                   '<p>Welcome to WordPress. This is your '
-                                   'first post. Edit or delete it, then start '
-                                   'writing!</p>\n'},
-        'date': '2022-11-30T18:48:27',
-        'date_gmt': '2022-11-30T18:48:27',
-        'excerpt': {   'protected': False,
-                       'rendered': '<p>Welcome to WordPress. This is your '
-                                   'first post. Edit or delete it, then start '
-                                   'writing!</p>\n'},
-        'featured_media': 0,
-        'format': 'standard',
-        'guid': {'rendered': 'http://18.189.31.189:8088/?p=1'},
-        'id': 1,
-        'link': 'http://18.189.31.189:8088/2022/11/30/hello-world/',
-        'meta': [],
-        'modified': '2022-11-30T18:48:27',
-        'modified_gmt': '2022-11-30T18:48:27',
-        'ping_status': 'open',
-        'slug': 'hello-world',
-        'status': 'publish',
-        'sticky': False,
-        'tags': [],
-        'template': '',
-        'title': {'rendered': 'Hello world!'},
-        'type': 'post'}]
+                                         'author': 1,
+                                         'categories': [1],
+                                         'comment_status': 'open',
+                                         'content': {   'protected': False,
+                                                        'rendered': '\n'
+                                                            '<p>Welcome to WordPress. This is your '
+                                                            'first post. Edit or delete it, then start '
+                                                            'writing!</p>\n'},
+                                         'date': '2022-11-30T18:48:27',
+                                         'date_gmt': '2022-11-30T18:48:27',
+                                         'excerpt': {   'protected': False,
+                                                        'rendered': '<p>Welcome to WordPress. This is your '
+                                                            'first post. Edit or delete it, then start '
+                                                            'writing!</p>\n'},
+                                        'featured_media': 0,
+                                        'format': 'standard',
+                                        'guid': {'rendered': 'http://18.189.31.189:8088/?p=1'},
+                                        'id': 1,
+                                        'link': 'http://18.189.31.189:8088/2022/11/30/hello-world/',
+                                        'meta': [],
+                                        'modified': '2022-11-30T18:48:27',
+                                        'modified_gmt': '2022-11-30T18:48:27',
+                                        'ping_status': 'open',
+                                        'slug': 'hello-world',
+                                        'status': 'publish',
+                                        'sticky': False,
+                                        'tags': [],
+                                        'template': '',
+                                        'title': {'rendered': 'Hello world!'},
+                                        'type': 'post'
+        }
+    credentials = CREDS["user"] + ':' + CREDS["password"]
+    token = base64.b64encode(credentials.encode())
+    header = {'Authorization': 'Basic ' + token.decode('utf-8')}
     mock_response = mock_get.return_value
     mock_response.status_code = 200
     mock_response.json.return_value = expected
     response_data = pyblog.get_wp_response()
-    mock_get.assert_called_with(creds["wp_posts_url"])
+    mock_get.assert_called_with(CREDS['wp_posts_url'], header)
     assert response_data == expected
+
