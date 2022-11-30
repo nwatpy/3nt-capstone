@@ -44,9 +44,9 @@
   - name: change docker socket file permissions
     command: sudo chmod 666 /var/run/docker.sock
   
-    #-name: Install Docker Compose
-  # get_url:
-  #    url: "{{ docker_compose_url }}"
-  #    dest: /usr/local/bin/docker-compose
-  #    mode: '755'
+  - name: Install Docker Compose
+    get_url:
+      url: "{{ docker_compose_url }}"
+      dest: /usr/local/bin/docker-compose
+      mode: '755'
      
