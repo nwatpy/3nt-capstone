@@ -1,4 +1,5 @@
 */bin/*
 */lib*/*
 ansiblenew/lib64
-ansiblenew/vars/bamboo.yaml
+ansiblenew/vars/**
+infra-ansible/vars/bamboo.yaml
