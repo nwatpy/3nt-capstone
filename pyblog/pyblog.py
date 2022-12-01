@@ -8,7 +8,7 @@ import pprint
 
 CREDS = dotenv_values(".env")
 
-def get_wp_response():
+def get_wp_response(CREDS):
     credentials = CREDS["user"] + ':' + CREDS["password"]
     token = base64.b64encode(credentials.encode())
     header = {'Authorization': 'Basic ' + token.decode('utf-8')}
@@ -29,4 +29,4 @@ def pprint_response_data(response_data):
         PP.pprint(response_data)
 
 if __name__ == "__main__":
-    response_data = get_wp_response(); pprint_response_data(response_data)
+    response_data = get_wp_response(CREDS); pprint_response_data(response_data)
