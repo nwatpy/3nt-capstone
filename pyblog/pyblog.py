@@ -2,18 +2,14 @@
 
 import requests
 import json
-import base64
 from dotenv import dotenv_values
 import pprint
 
 CREDS = dotenv_values(".env")
 
 def get_wp_response(CREDS):
-    credentials = CREDS["user"] + ':' + CREDS["password"]
-    token = base64.b64encode(credentials.encode())
-    header = {'Authorization': 'Basic ' + token.decode('utf-8')}
     try:
-        response = requests.get(CREDS["wp_posts_url"], headers=header)
+        response = requests.get(CREDS["wp_posts_url"], auth=(CREDS["user"], CREDS["password"]))
         if not response.status_code == 200:
             return None
     except requests.exceptions.ConnectionError:
