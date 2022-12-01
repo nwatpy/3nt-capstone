@@ -1,1 +1,0 @@
-docker run --group-add $(getent group docker | cut -d ":" -f 3) -v /var/run/docker.sock:/var/run/docker.sock -v bambooVolume:/var/bamboo/bamboo-home --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 jrrickerson/capstone-bamboo
