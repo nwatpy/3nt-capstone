@@ -2,6 +2,7 @@
 */lib*/*
 */lib64*/*
 vars/bamboo.yaml
+vars/docker-compose.yaml
 venv
 .env
 */__pycache__/*
