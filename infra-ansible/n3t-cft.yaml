@@ -99,6 +99,10 @@ Resources:
           ToPort: 22
           CidrIp: 35.173.209.54/32
         - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 3.133.99.208/32
+        - IpProtocol: tcp
           FromPort: 8088
           ToPort: 8088
           CidrIp: 0.0.0.0/0
@@ -124,6 +128,10 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 35.173.209.54/32
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 3.133.99.208/32
         - IpProtocol: tcp
           FromPort: 8088
           ToPort: 8088
