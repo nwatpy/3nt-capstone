@@ -8,31 +8,31 @@ CREDS = {
     "password": "test_password"
 }
 
-def test_get_wp_response_success():
+def test_get_wp_r_success():
     expected = []
     with patch('requests.get') as mock_get:
         mock_response = mock_get.return_value
         mock_response.status_code = 200
         mock_response.json.return_value = expected
-        response_data = pyblog.get_wp_response(CREDS)
+        r = pyblog.get_wp_r(CREDS)
         mock_get.assert_called_with(CREDS["wp_posts_url"], auth=(CREDS["user"], CREDS["password"]))
-        assert response_data == expected
+        assert r == expected
 
-def test_get_wp_response_servererror():
+def test_get_wp_r_servererror():
     with patch('requests.get') as mock_get:
         mock_response = mock_get.return_value
         mock_response.status_code = 500
-        response_data = pyblog.get_wp_response(CREDS)
-        assert response_data == None
+        r = pyblog.get_wp_r(CREDS)
+        assert r == None
 
-def test_get_wp_response_connectionerror():
+def test_get_wp_r_connectionerror():
     with patch('requests.get') as mock_get:
         mock_get.side_effect = exceptions.ConnectionError
-        response_data = pyblog.get_wp_response(CREDS)
-        assert response_data == None
+        r = pyblog.get_wp_r(CREDS)
+        assert r == None
 
-def test_get_wp_response_timeouterror():
+def test_get_wp_r_timeouterror():
     with patch('requests.get') as mock_get:
         mock_get.side_effect = exceptions.Timeout
-        response_data = pyblog.get_wp_response(CREDS)
-        assert response_data == None
+        r = pyblog.get_wp_r(CREDS)
+        assert r == None
