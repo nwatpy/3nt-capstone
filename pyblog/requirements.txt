@@ -1,3 +1,4 @@
+coverage
 flake8
 idna==2.8
 importlib-metadata==4.2.0
