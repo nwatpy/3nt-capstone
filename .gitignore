@@ -9,3 +9,5 @@ venv
 */.pytest_cache
 htmlcov
 .coverage
+data/*
+*.swp

@@ -1,0 +1,91 @@
+Validating Token
+
+You likely don’t need to validate the token your self. The plugin handle it for you like explained above.
+
+But if you want to test or validate the token manually, then send a POST request to this endpoint (don’t forget to set your Bearer Authorization header):
+
+/wp-json/jwt-auth/v1/token/validate
+
+Valid Token Response:
+
+{
+    "success": true,
+    "statusCode": 200,
+    "code": "jwt_auth_valid_token",
+    "message": "Token is valid",
+    "data": []
+}
+
+Errors
+
+If the token is invalid an error will be returned. Here are some samples of errors:
+No Secret Key
+
+{
+    "success": false,
+    "statusCode": 403,
+    "code": "jwt_auth_bad_config",
+    "message": "JWT is not configured properly.",
+    "data": []
+}
+
+No HTTP_AUTHORIZATION Header
+
+{
+    "success": false,
+    "statusCode": 403,
+    "code": "jwt_auth_no_auth_header",
+    "message": "Authorization header not found.",
+    "data": []
+}
+
+Bad Iss
+
+{
+    "success": false,
+    "statusCode": 403,
+    "code": "jwt_auth_bad_iss",
+    "message": "The iss do not match with this server.",
+    "data": []
+}
+
+Invalid Signature
+
+{
+    "success": false,
+    "statusCode": 403,
+    "code": "jwt_auth_invalid_token",
+    "message": "Signature verification failed",
+    "data": []
+}
+
+Bad Request
+
+{
+    "success": false,
+    "statusCode": 403,
+    "code": "jwt_auth_bad_request",
+    "message": "User ID not found in the token.",
+    "data": []
+}
+
+User Not Found
+
+{
+    "success": false,
+    "statusCode": 403,
+    "code": "jwt_auth_user_not_found",
+    "message": "User doesn't exist",
+    "data": []
+}
+
+Expired Token
+
+{
+    "success": false,
+    "statusCode": 403,
+    "code": "jwt_auth_invalid_token",
+    "message": "Expired token",
+    "data": []
+}
+
