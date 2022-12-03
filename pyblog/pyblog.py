@@ -4,6 +4,8 @@ import argparse
 import requests
 import pprint
 import yaml
+import json
+import ruamel.yaml
 import datetime as DT
 from dotenv import dotenv_values
 from sys import exit
@@ -79,11 +81,41 @@ def pprint_r(r):  # pragma: no cover
 def yamlprint_r(r):  # pragma: no cover
     with open('./data/r.yaml', 'w') as f:
         yaml.dump(r, f, allow_unicode=True)
+
+
+def remove_links_yaml():
     with open('./data/r.yaml', 'r') as f:
+        clean_yaml = ruamel.yaml.round_trip_load(f)
+    with open('./data/clean.yaml', 'w') as f:
+        del clean_yaml[0]["_links"]
+        del clean_yaml[1]["_links"]
+        del clean_yaml[2]["_links"]
+        del clean_yaml[3]["_links"]
+        del clean_yaml[4]["_links"]
+        ruamel.yaml.round_trip_dump(clean_yaml, stream=f, block_seq_indent=1)
+
+
+def get_post_template(r):
+    with open('./data/cleaner.yaml', 'w') as f:
+        yaml.dump(r, f, allow_unicode=True)
+
+
+def display_post_template():
+    with open('./data/cleaner.yaml', 'r') as f:
         print(f.read())
 
 
+def remove_links_json(r):
+    keys = '_links'
+    return {k: v for k, v in r[0].items() if k not in keys}
+
+
 def jsonprint_r(r):  # pragma: no cover
+    r = remove_links_json(r)
+    with open('./data/clean.json', 'w') as f:
+        PP = pprint.PrettyPrinter(indent=4, stream=f)
+        PP.pprint(r)
+    get_post_template(r)
     PP = pprint.PrettyPrinter(indent=4)
     PP.pprint(r)
 
@@ -101,11 +133,19 @@ def run_read(CREDS, data):  # pragma: no cover
     if data == "json":
         pprint_r(r)
         jsonprint_r(r)
-        print("Data saved to ./data/r.json")
+        print("Displaying newest post data.\
+        Entire response saved to ./data/r.json")
         exit()
     if data == "yaml":
         yamlprint_r(r)
-        print("Data saved to ./data/r.yaml")
+        remove_links_yaml()
+        r = remove_links_json(r)
+        get_post_template(r)
+        display_post_template()
+        print("Displaying newest post data.\
+        Entire response saved to ./data/r.yaml\
+        Clean response saved to ./data/clean.yaml\
+        Post Template saved to ./data/cleaner.yaml")
         exit()
     else:
         run_read_CLI(r)
@@ -119,12 +159,20 @@ def run_read_CLI(r):
         exit (quit Pyblog CLI)")
         CLI_input = input()
         if CLI_input.lower() == "json":
+            pprint_r(r)
             jsonprint_r(r)
-            print("Data not saved.  Use --data=json\
-            to save the output to ./data/r.json")
+            print("Displaying newest post data.\
+            Entire response saved to ./data/r.json")
         if CLI_input.lower() == "yaml":
             yamlprint_r(r)
-            print("Data saved to ./data/r.yaml")
+            remove_links_yaml()
+            r = remove_links_json(r)
+            get_post_template(r)
+            display_post_template()
+            print("Displaying newest post data.\
+            Entire response saved to ./data/r.yaml\
+            Clean response saved to ./data/clean.yaml\
+            Post Template saved to ./data/cleaner.yaml")
         else:
             if CLI_input.lower() == "write":
                 run_write_CLI(CREDS)
@@ -142,9 +190,9 @@ def run_write_CLI(CREDS):
         print("Please select from the following:\
         title (create title for your post)\
         content (write your post)\
-        categories (provide category ID)\
         post (show post data before publishing)\
         publish (post to wordpress)\
+        template (publishes designated template file)\
         read (switch to read mode)\
         exit (quit Pyblog CLI)")
         CLI_input = input()
@@ -156,17 +204,23 @@ def run_write_CLI(CREDS):
             print("Provide content for your post:")
             CLI_input = input()
             post.setdefault("content", CLI_input)
-        if CLI_input.lower() == "categories":
-            print("Provide a category ID for your post:")
-            CLI_input = input()
-            if CLI_input is not int:
-                print("Category ID must be a number")
-            else:
-                post.setdefault("categories", int(CLI_input))
         if CLI_input.lower() == "post":
             print(post)
         if CLI_input.lower() == "publish":
             wp_publish(post)
+        if CLI_input.lower() == "template":
+            print("Provide filepath to template:")
+            CLI_input = input()
+            with open(CLI_input, 'r') as f:
+                post_template = yaml.safe_load(f)
+            with open('./data/post_template_json', 'w') as f:
+                json.dump(post_template, f)
+            with open('./data/post_template_json', 'r') as f:
+                post_template = json.load(f)
+            post.setdefault("title", post_template["title"])
+            post.setdefault("content", post_template["content"])
+            wp_publish(post)
+
         else:
             if CLI_input.lower() == "read":
                 data = None
@@ -184,7 +238,8 @@ def wp_publish(post):
     try:
         r = requests.post(CREDS["wp_posts_url"], headers=curHeaders, json=post)
         if not r.status_code == 201:
-            print("Post failed.  Possible issue with connection or credentials.")
+            print("Post failed.\
+            Possible issue with connection or credentials.")
             return
         else:
             print("Data successfully posted to wordpress.")
