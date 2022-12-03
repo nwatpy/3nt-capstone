@@ -14,7 +14,7 @@ pluggy==1.0.0
 python-dotenv
 py==1.11.0
 pyasn1==0.4.5
-pycodestyle==2.9.1
+pycodestyle==2.11.0
 pycparser==2.19
 pyflakes==2.5.0
 Pygments==2.4.2
