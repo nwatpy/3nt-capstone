@@ -95,12 +95,12 @@ def remove_links_yaml():
         ruamel.yaml.round_trip_dump(clean_yaml, stream=f, block_seq_indent=1)
 
 
-def get_post_template(r):
+def get_cleaner_yaml(r):
     with open('./data/cleaner.yaml', 'w') as f:
         yaml.dump(r, f, allow_unicode=True)
 
 
-def display_post_template():
+def display_cleaner_yaml():
     with open('./data/cleaner.yaml', 'r') as f:
         print(f.read())
 
@@ -115,7 +115,7 @@ def jsonprint_r(r):  # pragma: no cover
     with open('./data/clean.json', 'w') as f:
         PP = pprint.PrettyPrinter(indent=4, stream=f)
         PP.pprint(r)
-    get_post_template(r)
+    get_cleaner_yaml(r)
     PP = pprint.PrettyPrinter(indent=4)
     PP.pprint(r)
 
@@ -140,12 +140,12 @@ def run_read(CREDS, data):  # pragma: no cover
         yamlprint_r(r)
         remove_links_yaml()
         r = remove_links_json(r)
-        get_post_template(r)
-        display_post_template()
+        get_cleaner_yaml(r)
+        display_cleaner_yaml()
         print("Displaying newest post data.\
         Entire response saved to ./data/r.yaml\
         Clean response saved to ./data/clean.yaml\
-        Post Template saved to ./data/cleaner.yaml")
+        yaml data displayed saved to ./data/cleaner.yaml")
         exit()
     else:
         run_read_CLI(r)
@@ -167,12 +167,12 @@ def run_read_CLI(r):
             yamlprint_r(r)
             remove_links_yaml()
             r = remove_links_json(r)
-            get_post_template(r)
-            display_post_template()
+            get_cleaner_yaml(r)
+            display_cleaner_yaml()
             print("Displaying newest post data.\
             Entire response saved to ./data/r.yaml\
             Clean response saved to ./data/clean.yaml\
-            Post Template saved to ./data/cleaner.yaml")
+            yaml data displayed saved to ./data/cleaner.yaml")
         else:
             if CLI_input.lower() == "write":
                 run_write_CLI(CREDS)
@@ -213,9 +213,9 @@ def run_write_CLI(CREDS):
             CLI_input = input()
             with open(CLI_input, 'r') as f:
                 post_template = yaml.safe_load(f)
-            with open('./data/post_template_json', 'w') as f:
+            with open('./data/post_template.json', 'w') as f:
                 json.dump(post_template, f)
-            with open('./data/post_template_json', 'r') as f:
+            with open('./data/post_template.json', 'r') as f:
                 post_template = json.load(f)
             post.setdefault("title", post_template["title"])
             post.setdefault("content", post_template["content"])
