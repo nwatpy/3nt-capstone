@@ -23,10 +23,13 @@ def get_jwt_auth(CREDS):
     r = r.json()
     return r
 
+
 def pprint_r(r):  # pragma: no cover
-    with open('./data/jwt-auth.json', 'w') as f:
+    with open('../data/jwt-auth.json', 'w') as f:
         PP = pprint.PrettyPrinter(indent=4, stream=f)
         PP.pprint(r)
 
-if __name__ == "__main__":
-    r = get_jwt_auth(CREDS); pprint_r(r)
+
+if __name__ == "__main__":  # pragma: no cover
+    r = get_jwt_auth(CREDS)
+    pprint_r(r)

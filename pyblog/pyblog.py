@@ -13,8 +13,9 @@ CREDS = dotenv_values('.env')
 
 def parse_args():  # pragma: no cover
     parser = argparse.ArgumentParser(
-        description="CLI for wordpress REST API.  \
-            Pyblog written by Team N3T from the IEA Cohort 08.")
+        description="CLI for wordpress REST API. \
+            Pyblog written by Team N3T from the IEA Cohort 08. \
+            Special thanks to the instructor JR Rickerson")
     parser.add_argument('--blog', action='store', help='use \
                         --blog= with the following parameters \
                         to interact with Pyblog CLI: read, write')
@@ -100,11 +101,11 @@ def run_read(CREDS, data):  # pragma: no cover
     if data == "json":
         pprint_r(r)
         jsonprint_r(r)
-        ("Data saved to ./data/r.json")
+        print("Data saved to ./data/r.json")
         exit()
     if data == "yaml":
         yamlprint_r(r)
-        ("Data saved to ./data/r.yaml")
+        print("Data saved to ./data/r.yaml")
         exit()
     else:
         run_read_CLI(r)
@@ -125,21 +126,23 @@ def run_read_CLI(r):
             yamlprint_r(r)
             print("Data saved to ./data/r.yaml")
         else:
-            if CLI_input == "write":
+            if CLI_input.lower() == "write":
                 run_write_CLI(CREDS)
-            if CLI_input == "exit":
+            if CLI_input.lower() == "exit":
                 exit()
 
 
 def run_write_CLI(CREDS):
     post = {
-        "status": "publish",
         "date": get_date(),
+        "status": "publish",
+        "format": "standard"
     }
     while True:
         print("Please select from the following:\
         title (create title for your post)\
         content (write your post)\
+        categories (provide category ID)\
         post (show post data before publishing)\
         publish (post to wordpress)\
         read (switch to read mode)\
@@ -153,25 +156,43 @@ def run_write_CLI(CREDS):
             print("Provide content for your post:")
             CLI_input = input()
             post.setdefault("content", CLI_input)
+        if CLI_input.lower() == "categories":
+            print("Provide a category ID for your post:")
+            CLI_input = input()
+            if CLI_input is not int:
+                print("Category ID must be a number")
+            else:
+                post.setdefault("categories", int(CLI_input))
         if CLI_input.lower() == "post":
             print(post)
         if CLI_input.lower() == "publish":
-            try:
-                r = requests.post(CREDS["wp_posts_url"], auth=(
-                    CREDS["user"], CREDS["password"]), data=post)
-                if not r.status_code == 200:
-                    print("Could not connect to wordpress.")
-            except requests.exceptions.ConnectionError:
-                print("Could not connect to wordpress.")
-            except requests.exceptions.Timeout:
-                print("Could not connect to wordpress.")
-            print(r)
+            wp_publish(post)
         else:
             if CLI_input.lower() == "read":
                 data = None
                 run_read(CREDS, data)
             if CLI_input.lower() == "exit":
                 exit()
+
+
+def wp_publish(post):
+    curHeaders = {
+        "Authorization": "Bearer %s" % CREDS["jwt_auth"],
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    try:
+        r = requests.post(CREDS["wp_posts_url"], headers=curHeaders, json=post)
+        if not r.status_code == 201:
+            print("Post failed.  Possible issue with connection or credentials.")
+            return
+        else:
+            print("Data successfully posted to wordpress.")
+            return
+    except requests.exceptions.ConnectionError:
+        print("Could not connect to wordpress.")
+    except requests.exceptions.Timeout:
+        print("Could not connect to wordpress.")
 
 
 def run_pyblog():  # pragma: no cover
