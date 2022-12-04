@@ -26,30 +26,38 @@ def parse_args():  # pragma: no cover
                         to view and save wordpress rest api output in \
                         specified data format: json, yaml \
                         Example: --blog=read --data=json')
+    parser.add_argument('--template', action='store', help='use \
+                        --blog=write --template=<filepath> \
+                        to post template file to wordpress instantly')
     args = parser.parse_args()
     varsargs = vars(args)
+    if args.template is not None:
+        if args.blog == "write":
+            return varsargs["blog"], None, varsargs["template"]
+        else:
+            pass
     try:
         argsvars = lower_argsvars(varsargs)
     except AttributeError:
-        return None, None
+        return None, None, None
     except OverflowError:
-        return None, None
+        return None, None, None
     except TypeError:
-        return None, None
+        return None, None, None
     if args.data:
         if args.data == "json":
             if args.blog == "read":
-                return argsvars["blog"], argsvars["data"]
+                return argsvars["blog"], argsvars["data"], None
         if args.data == "yaml":
             if args.blog == "read":
-                return argsvars["blog"], argsvars["data"]
+                return argsvars["blog"], argsvars["data"], None
     if args.blog:
         if args.blog == "read":
-            return argsvars["blog"], None
+            return argsvars["blog"], None, None
         if args.blog == "write":
-            return argsvars["blog"], None
+            return argsvars["blog"], None, None
     else:
-        return None, None
+        return None, None, None
 
 
 def lower_argsvars(varsargs):  # pragma: no cover
@@ -83,16 +91,28 @@ def yamlprint_r(r):  # pragma: no cover
         yaml.dump(r, f, allow_unicode=True)
 
 
-def remove_links_yaml():
+def parse_post_id():
+    with open('./data/cleaner.yaml', 'r') as f:
+        post_id = yaml.safe_load(f)
+    with open('./data/parse_post_id.json', 'w') as f:
+        json.dump(post_id, f)
+    with open('./data/parse_post_id.json', 'r') as f:
+        post_id = json.load(f)
+    return int(post_id["id"])
+
+
+def yaml_clean_print(post_id):
     with open('./data/r.yaml', 'r') as f:
         clean_yaml = ruamel.yaml.round_trip_load(f)
-    with open('./data/clean.yaml', 'w') as f:
-        del clean_yaml[0]["_links"]
-        del clean_yaml[1]["_links"]
-        del clean_yaml[2]["_links"]
-        del clean_yaml[3]["_links"]
-        del clean_yaml[4]["_links"]
-        ruamel.yaml.round_trip_dump(clean_yaml, stream=f, block_seq_indent=1)
+    with open('./data/clean.yaml', 'w+') as f:
+        x = 0
+        try:
+            for clean_yaml[0]["_links"] in range(1, post_id):
+                del clean_yaml[x]["_links"]
+                x += 1
+        except IndexError:
+            ruamel.yaml.round_trip_dump(
+                clean_yaml, stream=f, block_seq_indent=1)
 
 
 def get_cleaner_yaml(r):
@@ -138,9 +158,10 @@ def run_read(CREDS, data):  # pragma: no cover
         exit()
     if data == "yaml":
         yamlprint_r(r)
-        remove_links_yaml()
         r = remove_links_json(r)
         get_cleaner_yaml(r)
+        post_id = parse_post_id()
+        yaml_clean_print(post_id)
         display_cleaner_yaml()
         print("Displaying newest post data.\
         Entire response saved to ./data/r.yaml\
@@ -165,9 +186,10 @@ def run_read_CLI(r):
             Entire response saved to ./data/r.json")
         if CLI_input.lower() == "yaml":
             yamlprint_r(r)
-            remove_links_yaml()
             r = remove_links_json(r)
             get_cleaner_yaml(r)
+            post_id = parse_post_id()
+            yaml_clean_print(post_id)
             display_cleaner_yaml()
             print("Displaying newest post data.\
             Entire response saved to ./data/r.yaml\
@@ -211,12 +233,7 @@ def run_write_CLI(CREDS):
         if CLI_input.lower() == "template":
             print("Provide filepath to template:")
             CLI_input = input()
-            with open(CLI_input, 'r') as f:
-                post_template = yaml.safe_load(f)
-            with open('./data/post_template.json', 'w') as f:
-                json.dump(post_template, f)
-            with open('./data/post_template.json', 'r') as f:
-                post_template = json.load(f)
+            post_template = load_template(CLI_input)
             post.setdefault("title", post_template["title"])
             post.setdefault("content", post_template["content"])
             wp_publish(post)
@@ -227,6 +244,33 @@ def run_write_CLI(CREDS):
                 run_read(CREDS, data)
             if CLI_input.lower() == "exit":
                 exit()
+
+
+def load_template(CLI_input):
+    with open(CLI_input, 'r') as f:
+        post_template = yaml.safe_load(f)
+    with open('./data/post_template.json', 'w') as f:
+        json.dump(post_template, f)
+    with open('./data/post_template.json', 'r') as f:
+        post_template = json.load(f)
+    return post_template
+
+
+def publish_template(template):
+    post = {
+        "date": get_date(),
+        "status": "publish",
+        "format": "standard"
+    }
+    with open(template, 'r') as f:
+        post_template = yaml.safe_load(f)
+    with open('./data/post_template.json', 'w') as f:
+        json.dump(post_template, f)
+    with open('./data/post_template.json', 'r') as f:
+        post_template = json.load(f)
+    post.setdefault("title", post_template["title"])
+    post.setdefault("content", post_template["content"])
+    wp_publish(post)
 
 
 def wp_publish(post):
@@ -246,16 +290,20 @@ def wp_publish(post):
             return
     except requests.exceptions.ConnectionError:
         print("Could not connect to wordpress.")
+        return
     except requests.exceptions.Timeout:
         print("Could not connect to wordpress.")
+        return
 
 
 def run_pyblog():  # pragma: no cover
-    blog, data = parse_args()
+    blog, data, template = parse_args()
     if blog == "read":
         run_read(CREDS, data)
-    if blog == "write":
+    if blog == "write" and template is None:
         run_write_CLI(CREDS)
+    if blog == "write" and template is not None:
+        publish_template(template)
     else:
         print("Please specify --blog=read or --blog=write. \
         Please use -h or --help for more information on this tool")

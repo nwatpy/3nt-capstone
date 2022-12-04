@@ -3,18 +3,17 @@ from unittest.mock import patch
 import gen_jwt_auth
 
 CREDS = {
-    "wp_posts_url": "http://18.189.31.189:8088/wp-json/wp/v2/posts",
     "wp_jwt_auth_url": "http://18.189.31.189:8088/wp-json/jwt-auth/v1/token",
     "user": "test_user",
     "password": "test_password",
-    "jwt_auth": "test_jwt-auth"
 }
+
 
 def test_get_jwt_auth_success():
     expected = {}
     post = {
-    "username": CREDS["user"],
-    "password": CREDS["password"]
+        "username": CREDS["user"],
+        "password": CREDS["password"]
     }
     with patch('requests.post') as mock_post:
         mock_response = mock_post.return_value
