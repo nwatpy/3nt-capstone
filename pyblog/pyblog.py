@@ -227,7 +227,8 @@ def run_write_CLI(CREDS):
             CLI_input = input()
             post.setdefault("content", CLI_input)
         if CLI_input.lower() == "post":
-            print(post)
+            PP = pprint.PrettyPrinter(indent=4)
+            PP.pprint(post)
         if CLI_input.lower() == "publish":
             wp_publish(post)
         if CLI_input.lower() == "template":
