@@ -5,13 +5,14 @@ import requests
 import pprint
 import yaml
 import json
+import os
 import ruamel.yaml
 import datetime as DT
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 from sys import exit
 
-CREDS = dotenv_values('.env')
-
+load_dotenv()
+CREDS = os.environ
 
 def parse_args():  # pragma: no cover
     parser = argparse.ArgumentParser(
