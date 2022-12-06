@@ -14,6 +14,7 @@ def get_jwt_auth(CREDS):
     }
     try:
         r = requests.post(CREDS["wp_jwt_auth_url"], json=post)
+        print(r)
         if not r.status_code == 200:
             return None
     except requests.exceptions.ConnectionError:
@@ -25,7 +26,7 @@ def get_jwt_auth(CREDS):
 
 
 def pprint_r(r):  # pragma: no cover
-    with open('../data/jwt-auth.json', 'w') as f:
+    with open('./data/jwt-auth.json', 'w') as f:
         PP = pprint.PrettyPrinter(indent=4, stream=f)
         PP.pprint(r)
 
