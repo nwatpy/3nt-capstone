@@ -14,6 +14,7 @@ from sys import exit
 load_dotenv()
 CREDS = os.environ
 
+
 def parse_args():  # pragma: no cover
     parser = argparse.ArgumentParser(
         description="CLI for wordpress REST API. \
@@ -285,6 +286,7 @@ def publish_template(template):
     post.setdefault("title", post_template["title"])
     post.setdefault("content", post_template["content"])
     wp_publish(post)
+
 
 def publish_plaintext(template):
     post = {
