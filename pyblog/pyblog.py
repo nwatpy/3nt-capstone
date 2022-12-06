@@ -137,7 +137,10 @@ def remove_links_json(r):
 
 
 def jsonprint_r(r):  # pragma: no cover
-    r = remove_links_json(r)
+    try:
+        r = remove_links_json(r)
+    except KeyError:
+        pass
     with open('./data/clean.json', 'w') as f:
         PP = pprint.PrettyPrinter(indent=4, stream=f)
         PP.pprint(r)
@@ -164,10 +167,16 @@ def run_read(CREDS, data):  # pragma: no cover
         exit()
     if data == "yaml":
         yamlprint_r(r)
-        r = remove_links_json(r)
+        try:
+            r = remove_links_json(r)
+        except KeyError:
+            pass
         get_cleaner_yaml(r)
         post_id = parse_post_id()
-        yaml_clean_print(post_id)
+        try:
+            yaml_clean_print(post_id)
+        except KeyError:
+            pass
         display_cleaner_yaml()
         print("Displaying newest post data.\
         Entire response saved to ./data/r.yaml\
@@ -192,10 +201,16 @@ def run_read_CLI(r):
             Entire response saved to ./data/r.json")
         if CLI_input.lower() == "yaml":
             yamlprint_r(r)
-            r = remove_links_json(r)
+            try:
+                r = remove_links_json(r)
+            except KeyError:
+                pass
             get_cleaner_yaml(r)
             post_id = parse_post_id()
-            yaml_clean_print(post_id)
+            try:
+                yaml_clean_print(post_id)
+            except KeyError:
+                pass
             display_cleaner_yaml()
             print("Displaying newest post data.\
             Entire response saved to ./data/r.yaml\
@@ -298,7 +313,7 @@ def publish_plaintext(template):
         lines = f.readlines()
         post_template = [line.strip() for line in lines]
     post.setdefault("title", post_template.pop(0))
-    post_template = "".join(post_template)
+    post_template = '\n '.join(post_template)
     post.setdefault("content", post_template)
     wp_publish(post)
 
