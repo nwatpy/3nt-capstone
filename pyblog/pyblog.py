@@ -29,14 +29,18 @@ def parse_args():  # pragma: no cover
                         Example: --blog=read --data=json')
     parser.add_argument('--template', action='store', help='use \
                         --blog=write --template=<filepath> \
-                        to post template file to wordpress instantly')
+                        to post template file to wordpress instantly. \
+                        use --blog=write --data=plain --template=<filepath> \
+                        to post plain text file to wordpress instantly')
     args = parser.parse_args()
     varsargs = vars(args)
-    if args.template is not None:
+    if args.template is not None and args.data is None:
         if args.blog == "write":
             return varsargs["blog"], None, varsargs["template"]
-        else:
-            pass
+    if args.template is not None and args.data == "plain":
+        if args.blog == "write":
+            if args.data == "plain":
+                return varsargs["blog"], varsargs["data"], varsargs["template"]
     try:
         argsvars = lower_argsvars(varsargs)
     except AttributeError:
@@ -233,12 +237,20 @@ def run_write_CLI(CREDS):
         if CLI_input.lower() == "publish":
             wp_publish(post)
         if CLI_input.lower() == "template":
-            print("Provide filepath to template:")
+            print("Is template file yaml or plain text? Type yaml or plain:")
             CLI_input = input()
-            post_template = load_template(CLI_input)
-            post.setdefault("title", post_template["title"])
-            post.setdefault("content", post_template["content"])
-            wp_publish(post)
+            if CLI_input == "yaml":
+                print("Provide filepath to template:")
+                CLI_input = input()
+                post_template = load_template(CLI_input)
+                post.setdefault("title", post_template["title"])
+                post.setdefault("content", post_template["content"])
+                wp_publish(post)
+            if CLI_input == "plain":
+                print("Provide filepath to template:")
+                CLI_input = input()
+                template = CLI_input
+                publish_plaintext(template)
 
         else:
             if CLI_input.lower() == "read":
@@ -274,6 +286,20 @@ def publish_template(template):
     post.setdefault("content", post_template["content"])
     wp_publish(post)
 
+def publish_plaintext(template):
+    post = {
+        "date": get_date(),
+        "status": "publish",
+        "format": "standard"
+    }
+    with open(template, 'r') as f:
+        lines = f.readlines()
+        post_template = [line.strip() for line in lines]
+    post.setdefault("title", post_template.pop(0))
+    post_template = "".join(post_template)
+    post.setdefault("content", post_template)
+    wp_publish(post)
+
 
 def wp_publish(post):
     curHeaders = {
@@ -304,8 +330,10 @@ def run_pyblog():  # pragma: no cover
         run_read(CREDS, data)
     if blog == "write" and template is None:
         run_write_CLI(CREDS)
-    if blog == "write" and template is not None:
+    if blog == "write" and data is None and template is not None:
         publish_template(template)
+    if blog == "write" and data == "plain" and template is not None:
+        publish_plaintext(template)
     else:
         print("Please specify --blog=read or --blog=write. \
         Please use -h or --help for more information on this tool")
