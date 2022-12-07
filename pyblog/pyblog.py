@@ -251,7 +251,7 @@ def run_write_CLI(CREDS):
             PP = pprint.PrettyPrinter(indent=4)
             PP.pprint(post)
         if CLI_input.lower() == "publish":
-            wp_publish(post)
+            wp_publish(CREDS, post)
         if CLI_input.lower() == "template":
             print("Is template file yaml or plain text? Type yaml or plain:")
             CLI_input = input()
@@ -261,7 +261,7 @@ def run_write_CLI(CREDS):
                 post_template = load_template(CLI_input)
                 post.setdefault("title", post_template["title"])
                 post.setdefault("content", post_template["content"])
-                wp_publish(post)
+                wp_publish(CREDS, post)
             if CLI_input == "plain":
                 print("Provide filepath to template:")
                 CLI_input = input()
@@ -300,7 +300,7 @@ def publish_template(template):
         post_template = json.load(f)
     post.setdefault("title", post_template["title"])
     post.setdefault("content", post_template["content"])
-    wp_publish(post)
+    wp_publish(CREDS, post)
 
 
 def publish_plaintext(template):
@@ -315,10 +315,10 @@ def publish_plaintext(template):
     post.setdefault("title", post_template.pop(0))
     post_template = '\n '.join(post_template)
     post.setdefault("content", post_template)
-    wp_publish(post)
+    wp_publish(CREDS, post)
 
 
-def wp_publish(post):
+def wp_publish(CREDS, post):
     curHeaders = {
         "Authorization": "Bearer %s" % CREDS["jwt_auth"],
         "Content-Type": "application/json",

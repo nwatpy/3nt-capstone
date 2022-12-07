@@ -53,10 +53,10 @@ def test_wp_publish_success():
     with patch('requests.post') as mock_post:
         mock_response = mock_post.return_value
         mock_response.status_code = 201
-        r = pyblog.wp_publish(post)
+        r = pyblog.wp_publish(CREDS, post)
         mock_post.assert_called_with(CREDS["wp_posts_url"], headers=curHeaders, json=post)
-        if not r.status_code == 201:
-            return "Post failed.\
+        if not mock_response.status_code == 201:
+            assert "Post failed.\
             Possible issue with connection or credentials."
         else:
-            return "Data successfully posted to wordpress."
+            assert "Data successfully posted to wordpress."
