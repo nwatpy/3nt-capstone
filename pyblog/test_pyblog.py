@@ -5,7 +5,8 @@ import pyblog
 CREDS = {
     "wp_posts_url": "http://18.189.31.189:8088/wp-json/wp/v2/posts",
     "user": "test_user",
-    "password": "test_password"
+    "password": "test_password",
+    "jwt_auth": "test_auth_token"
 }
 
 
@@ -41,3 +42,17 @@ def test_get_wp_r_timeouterror():
         mock_get.side_effect = exceptions.Timeout
         r = pyblog.get_wp_r(CREDS)
         assert r is None
+
+def test_wp_publish_success():
+    curHeaders = {
+        "Authorization": "Bearer %s" % CREDS["jwt_auth"],
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    post = {}
+    with patch('requests.post') as mock_post:
+        mock_response = mock_post.return_value
+        mock_response.status_code = 200
+        r = pyblog.wp_publish(post)
+        mock_post.assert_called_with(CREDS["wp_jwt_auth_url"], headers=curHeaders, json=post)
+        assert mock_response.status_code == 201
