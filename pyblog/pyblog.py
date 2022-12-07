@@ -327,18 +327,14 @@ def wp_publish(post):
     try:
         r = requests.post(CREDS["wp_posts_url"], headers=curHeaders, json=post)
         if not r.status_code == 201:
-            print("Post failed.\
-            Possible issue with connection or credentials.")
-            return
+            return "Post failed.\
+            Possible issue with connection or credentials."
         else:
-            print("Data successfully posted to wordpress.")
-            return
+            return "Data successfully posted to wordpress."
     except requests.exceptions.ConnectionError:
-        print("Could not connect to wordpress.")
-        return
+        return "Could not connect to wordpress."
     except requests.exceptions.Timeout:
-        print("Could not connect to wordpress.")
-        return
+        return "Could not connect to wordpress."
 
 
 def run_pyblog():  # pragma: no cover
