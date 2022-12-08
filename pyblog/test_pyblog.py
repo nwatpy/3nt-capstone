@@ -4,8 +4,6 @@ import pyblog
 
 CREDS = {
     "wp_posts_url": "http://18.189.31.189:8088/wp-json/wp/v2/posts",
-    "user": "test_user",
-    "password": "test_password",
     "jwt_auth": "test_auth_token"
 }
 
@@ -18,7 +16,7 @@ def test_get_wp_r_success():
         mock_response.json.return_value = expected
         r = pyblog.get_wp_r(CREDS)
         mock_get.assert_called_with(
-            CREDS["wp_posts_url"], auth=(CREDS["user"], CREDS["password"]))
+            CREDS["wp_posts_url"])
         assert r == expected
 
 

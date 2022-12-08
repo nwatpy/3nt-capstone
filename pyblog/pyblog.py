@@ -221,8 +221,7 @@ GET, POST AND SUPPORTING CLI FUNCTIONS
 
 def get_wp_r(CREDS):
     try:
-        r = requests.get(CREDS["wp_posts_url"], auth=(
-            CREDS["user"], CREDS["password"]))
+        r = requests.get(CREDS["wp_posts_url"])
         if not r.status_code == 200:
             return None
     except requests.exceptions.ConnectionError:
@@ -331,7 +330,7 @@ def run_write_CLI(CREDS):  # pragma: no cover
             PP = pprint.PrettyPrinter(indent=4)
             PP.pprint(post)
         if CLI_input.lower() == "publish":
-            wp_publish(CREDS, post)
+            print(wp_publish(CREDS, post))
         if CLI_input.lower() == "template":
             print(run_write_ask_template_data())
             CLI_input = input()
@@ -341,7 +340,7 @@ def run_write_CLI(CREDS):  # pragma: no cover
                 post_template = load_template(CLI_input)
                 post.setdefault("title", post_template["title"])
                 post.setdefault("content", post_template["content"])
-                wp_publish(CREDS, post)
+                print(wp_publish(CREDS, post))
             if CLI_input == "plain":
                 print(run_write_ask_template_filepath())
                 CLI_input = input()
@@ -380,7 +379,7 @@ def publish_template(template):  # pragma: no cover
         post_template = json.load(f)
     post.setdefault("title", post_template["title"])
     post.setdefault("content", post_template["content"])
-    wp_publish(CREDS, post)
+    print(wp_publish(CREDS, post))
 
 
 def publish_plaintext(template):  # pragma: no cover
@@ -395,7 +394,7 @@ def publish_plaintext(template):  # pragma: no cover
     post.setdefault("title", post_template.pop(0))
     post_template = '\n '.join(post_template)
     post.setdefault("content", post_template)
-    wp_publish(CREDS, post)
+    print(wp_publish(CREDS, post))
 
 
 """
@@ -413,7 +412,7 @@ def run_pyblog():  # pragma: no cover
         publish_template(template)
     if blog == "write" and data == "plain" and template is not None:
         publish_plaintext(template)
-    else:
+    if blog is None:
         print(run_pyblog_specify_blog_data())
 
 
